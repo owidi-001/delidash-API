@@ -1,1 +1,2 @@
-backend/secrets_1.py
+backend/.env
+staticfiles
