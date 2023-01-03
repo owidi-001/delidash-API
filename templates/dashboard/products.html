@@ -1,0 +1,24 @@
+{% extends "dashboard/base_dashboard.html"%}
+
+{% block main%}
+<h2 class="title">My products</h2>
+
+{% if products %}
+<div class="product_grid">
+    {% for product in products %}
+        {% include "_partials/card.html" %}
+    {% endfor %}
+</div>
+{% else %}
+<h4>
+    <br>
+    <br>
+    You don't have any products here yet.
+</h4>
+<br>
+<a href="{% url 'create_product'%}"> Create new</a>
+{% endif %}
+
+
+
+{% endblock main%}

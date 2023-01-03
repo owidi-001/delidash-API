@@ -1,0 +1,35 @@
+from django.conf import settings
+from django.contrib.auth.views import LogoutView
+from django.urls import path
+
+from .views import (dashboard_register, dashboard_login, dashboard_analytics, dashboard_products, manage_order, report, \
+                    update_product, create_product, dashboard_orders, delete_product, VendorViews,
+                    shop_update, create_shop)
+
+urlpatterns = [
+    # auth
+    path("", dashboard_login, name="login"),
+    path("register", dashboard_register, name="register"),
+    path("logout/", LogoutView.as_view(), {'next_page': settings.LOGOUT_REDIRECT_URL}, name='logout'),
+    
+    # Shop
+    path("create_shop", create_shop, name="create_shop"),
+    path("shop", shop_update, name="shop_update"),
+
+    # dashboard
+    path("analytics", dashboard_analytics, name="analytics"),
+    path("orders/<str:status>", dashboard_orders, name="vendor_orders"),
+    path("orders/<int:id>/manage", manage_order, name="manage_order"),
+    
+    # product
+    path("vendor/products", dashboard_products, name="vendor_products"),
+    path("vendor/products/create", create_product, name="create_product"),
+    path("vendor/products/<int:id>", update_product, name="product_edit"),
+    path("vendor/products/<int:id>/delete", delete_product, name="product_delete"),
+
+    # Vendor api for app
+    path("vendors/", VendorViews.as_view(), name="vendor"),
+
+    # Download report
+    path('report_download/', report, name="report_download"),
+]

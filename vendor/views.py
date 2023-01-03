@@ -1,0 +1,415 @@
+
+from datetime import datetime
+from json import dumps
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.shortcuts import get_object_or_404, render, redirect
+from xhtml2pdf import pisa
+from django.template.loader import get_template
+from io import BytesIO
+from django.http import HttpResponse
+from product.forms import ProductForm
+from product.models import Category
+from product.models import Product
+from rider.models import Rider
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework import status
+from user.forms import RegisterForm
+
+# signup COMPLETE
+from user.forms import LoginForm
+from user.models import User
+from vendor.forms import ShopCreateForm,ShopForm
+# from vendor.models import Vendor,OrderRider
+from vendor.serializers import VendorSerializer
+from vendor.utils import customers_streamed, daily_sales_totals, order_status, orders_streamed, pending_orders, top_selling, total_earnings
+
+from vendor.models import Vendor
+
+from order.models import Order
+
+
+"""
+The vendor user uses this platform to create their accounts
+It accepts the basic user creadentials then redirects to create a related shop on success else error
+"""
+def dashboard_register(request):
+    form = RegisterForm(request.POST)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+
+            # TODO! When email implemented
+            # email_to = form.cleaned_data.get("email")
+            # scheme = request.build_absolute_uri().split(":")[0]
+            # path = f"{scheme}://{request.get_host()}/login"
+            # message = render_to_string("auth/registration_email.html", {
+            #     "email": email_to, "path": path})
+            # subject = "Registration confirmation"
+
+            # EmailThead(email_to, subject ,message).start()
+            # send_mail(recipient=email_to, subject=subject ,message=message)
+
+
+            # messages.info(request, "Account created, check your email,login to start")
+            messages.info(request, "Account created, Create your shop below")
+            try:
+                vendor_user = get_object_or_404(User, email=form.cleaned_data.get("email"))
+                if vendor_user:
+                    user = authenticate(username=vendor_user.email, password=form.cleaned_data.get("password"))
+                    if user:
+                        login(request, user)
+                        return redirect("create_shop")
+            except:
+                return redirect("login")
+
+        else:
+            # print(form.errors)
+            messages.info(request, form.errors)
+    else:
+        return render(request, "auth/register.html",
+                  {"title": "Account creation"})
+
+"""
+This is a login platform for the vendor user
+It redirects to the shop creation if the user doesn't have a shop else to the vendor analytics dashboard
+"""
+def dashboard_login(request):
+    if request.POST:
+        form = LoginForm(request.POST)
+        if form.is_valid():
+            username = form.cleaned_data.get('email')
+            password = form.cleaned_data.get('password')
+            user = authenticate(username=username, password=password)
+            if user:
+                login(request, user)
+                try:
+                    # print("Searching vendor")
+                    vendor = get_object_or_404(Vendor, user=user)
+                    # print("vendor found")
+                    if vendor.brand is not None:
+                        print("Vendor redirect to analytics")
+                        return redirect('analytics')
+                except:
+                    # print("Vendor nor found")
+                    return redirect('create_shop')
+            else:
+                messages.error(request, "Incorrect email or password")
+        else:
+            messages.error(request, form.errors)
+    else:
+        return render(request, "auth/login.html", {"title": "Account lo"})
+
+
+def create_shop(request):
+    if request.POST and request.FILES:
+        print(request.FILES)
+        user = request.user
+
+        form = ShopCreateForm(request.POST,request.FILES)
+        # print(form)
+        # print(form.is_valid())
+        
+        if form.is_valid():
+            # print("Form is valid check")
+            vendor=form.save(commit=False)
+            vendor.user=user
+            vendor.save()
+            # print("Shop has been saved")
+            messages.info(request, "Your shop has been saved successfully")
+            # print("now is redirecting check")
+            return redirect("analytics")
+        else:
+            # print(form.errors)
+            messages.error(request, form.errors)
+
+    return render(request, "auth/shop.html",{"title": "Create your shop"})
+
+
+def dashboard_analytics(request):
+    vendor = get_object_or_404(Vendor, user=request.user)
+    # total incoming orders for this vendor
+    total_orders=orders_streamed(request)
+    
+    # pending orders
+    pending=pending_orders(request)
+    
+    # total unique customers for this vendor
+    total_customers=customers_streamed(request)
+    
+    # Total earnings
+    sales_total=total_earnings(request)
+
+
+    # products by number of orders made
+    top_selling_products=top_selling(request)
+
+    # order stats count
+    order_stats=dumps(order_status(request))
+    
+    # daily sales total
+    daily_sales=dumps(daily_sales_totals(request))
+    print(daily_sales)
+
+    context={
+        "total_orders":total_orders,
+        "total_customers":total_customers,
+        "sales_total":sales_total,
+        "pending_orders":pending,
+        "top_selling":top_selling_products,
+        "order_stats": order_stats,
+        "daily_totals":daily_sales,
+        "vendor":vendor,
+        "title":"Analytics"
+        ""
+    }
+
+    return render(request, "dashboard/analytics.html",context=context)
+
+
+# TODO! This will be updated to print a more consistent document
+def render_to_pdf(template_src, context_dict={}):
+	template = get_template(template_src)
+	html  = template.render(context_dict)
+	result = BytesIO()
+	pdf = pisa.pisaDocument(BytesIO(html.encode("ISO-8859-1")), result)
+	if not pdf.err:
+		return HttpResponse(result.getvalue(), content_type='application/pdf')
+	return None
+
+def report(request):
+    vendor = get_object_or_404(Vendor, user=request.user)
+    
+    items = Order.objects.all()
+    orders=[]
+
+    for item in items:
+        if item.product.vendor == vendor:
+            orders.append(item)
+
+    sales_total=total_earnings(request)
+
+    context={
+        "vendor":vendor,
+        "orders":orders,
+        "start_date":datetime.today(),
+        "end_date":datetime.today(),
+        "sales_total":sales_total
+    }
+
+    pdf = render_to_pdf('dashboard/report.html',context)
+
+    response = HttpResponse(pdf, content_type='application/pdf')
+    filename = "Invoice_%s.pdf" %("12341231")
+    content = "attachment; filename='%s'" %(filename)
+    response['Content-Disposition'] = content
+    return response
+
+
+def shop_update(request):
+    vendor = get_object_or_404(Vendor, user=request.user)
+
+    form = ShopForm(request.POST, request.FILES)
+
+    if request.POST:
+        if form.is_valid():
+            vendor.brand = form.cleaned_data.get("brand")
+
+            print(form.cleaned_data.get("brand"))
+            print(form.cleaned_data.get("tagline"))
+
+            if form.cleaned_data.get("brand"):
+                vendor.brand = form.cleaned_data.get("brand")
+            if form.cleaned_data.get("tagline"):
+                vendor.tagline = form.cleaned_data.get("tagline")
+            if form.cleaned_data.get("logo"):
+                vendor.logo = form.cleaned_data.get("logo")
+            vendor.save()
+
+            messages.info(request, "Shop Updated successfully")
+            return redirect("shop_update")
+        else:
+            print(form.errors)
+    return render(request, "dashboard/shop_update.html",{"vendor":vendor,"title":"Shop Update"})
+
+
+def dashboard_orders(request,status):
+    vendor = get_object_or_404(Vendor, user=request.user.id)
+    items = None
+
+    if status == "Pending":
+        items = Order.objects.filter(status="Pending")
+    elif status == "Dispatched":
+        items = Order.objects.filter(status="Dispatched")
+    elif status == "Completed":
+        items = Order.objects.filter(status="Completed")
+    elif status == "Cancelled":
+        items = Order.objects.filter(status="Cancelled")
+    else:
+        items = Order.objects.all()
+
+    orders=[]
+
+    for item in items:
+        if item.product.vendor == vendor:
+            # if item.order not in orders:
+            orders.append(item)
+
+    return render(request, "dashboard/orders.html",{"title": "Orders", "orders": orders,"vendor":vendor})
+
+
+def manage_order(request, id):
+
+    vendor = get_object_or_404(Vendor, user=request.user)
+    
+    order = get_object_or_404(Order, id=id)
+
+    rider = None
+
+
+    status_color="#23AA49"
+    
+    riders=[]
+
+    if order.status=="Pending":
+        status_color="#f0b802"
+        riders=Rider.objects.all()
+
+        if request.method=="POST":
+            order=get_object_or_404(Order,id=request.POST.get("order")) # value is hidden input
+            
+            rider=get_object_or_404(Rider,id=request.POST.get("rider"))
+            # Create rider dispatch
+            order.rider=rider
+        
+            # update status to Dispatched
+            order.status="Dispatched"
+            status_color="#979899"
+
+            order.save()
+            messages.success(request,"Order dispatched successfully")
+
+    else:
+        if order.status == "Dispatched":
+            status_color="#979899"
+        elif order.status == "Cancelled":
+            status_color="#FF324B"        
+
+    if order:
+        return render(request, "dashboard/order_detail.html",{"title": "Manage order", "order": order,"status_color":status_color,"riders":riders,"vendor":vendor,"rider":rider})
+
+
+
+def dashboard_products(request):
+    vendor = get_object_or_404(Vendor, user=request.user)
+    products = Product.objects.filter(vendor=vendor)
+
+    for product in products:
+        print(product.is_new)
+
+    return render(request, "dashboard/products.html",
+                  {"title": "My products", "products": products,"vendor":vendor,"title":"My Products"})
+
+
+# product create
+def create_product(request):
+    vendor = get_object_or_404(Vendor, user=request.user)
+    categories = Category.objects.all()
+    form = ProductForm(request.POST, request.FILES)
+    
+    if request.method == "POST":
+        if form.is_valid():
+            product = form.save(commit=False)
+            product.vendor = get_object_or_404(Vendor, user=request.user)
+            category=get_object_or_404(Category,id=request.POST.get("category"))
+            if category:
+                product.category=category
+
+            product.save()
+            print("product saved")
+            messages.success(request, f"{product.name} added successfully")
+            return redirect('vendor_products')
+        else:
+            messages.error(request, f"{form.errors}")
+    return render(request, "dashboard/products_create.html",
+                  {'categories': categories, 'current_category': None,"vendor":vendor,"title":"Create new product"})
+
+
+# edit product
+def update_product(request, id):
+    vendor = get_object_or_404(Vendor, user=request.user)
+    product = get_object_or_404(Product, id=id)
+    categories = Category.objects.all()
+    
+    
+    if request.POST:
+        form = ProductForm(request.POST, request.FILES)
+        if form.is_valid():
+            label = form.cleaned_data.get('label')
+            unit_price = float(form.cleaned_data.get('unit_price'))
+            quantity = int(form.cleaned_data.get('quantity'))
+            image = form.cleaned_data.get("image")
+            description = form.cleaned_data.get("description")
+            category = request.POST['category']
+
+            # print(category)
+            product_category = get_object_or_404(Category, id=category)
+
+            # Update product
+            if label:
+                product.name = label
+
+            if unit_price:
+                product.unit_price = unit_price
+
+            if description:
+                product.description = description
+
+            if quantity:
+                product.quantity = quantity
+
+            if product_category:
+                product.category = product_category
+
+            if image:
+                product.image = image
+
+            product.save()
+            messages.success(request, 'Your product has been updated successfully')
+            return redirect('products')
+        else:
+            messages.error(request, 'Product update failed')
+
+
+    return render(request, "dashboard/products_edit.html",
+                  {'product': product, 'categories': categories, 'current_category': product.category,"vendor":vendor,"title":"Update product"
+                   })
+
+
+# delete product
+def delete_product(request,id):
+    product = get_object_or_404(Product, id=id)
+    try:
+        product.delete()
+        messages.success(request, "Product deleted successfully")
+        return redirect('products')
+    except:
+        messages.error(request, "Unable to delete this product")
+
+
+class VendorViews(APIView):
+    """ Vendor dashboard functions: list, create, update, delete for products"""
+
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [AllowAny]
+
+    """ Gets a list of all products belonging to the vendor """
+
+    def get(self, request):
+        vendors = Vendor.objects.all()
+        serializer = VendorSerializer(vendors, many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)

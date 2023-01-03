@@ -1,0 +1,129 @@
+//// registerurl
+//
+///*
+//Request POST /mpesa/c2b/v1/registerurl HTTP/1.1
+//*/
+{
+  "ShortCode": "600482",
+  "ResponseType": "Completed the Mwavuli Transaction",
+  "ConfirmationURL": "https://urlhitter.herokuapp.com/api/v1/callbacks",
+  "ValidationURL": "https://urlhitter.herokuapp.com/api/v1/callbacks"
+}
+
+///*
+//Response HTTP/1.1 200 OK
+//*/
+{
+  "ConversationID": "",
+  "OriginatorCoversationID": "",
+  "ResponseDescription": "success"
+}
+
+// simulatec2b
+
+/*
+Request POST /mpesa/c2b/v1/simulate HTTP/1.1
+*/
+{
+  "ShortCode": "600482",
+  "CommandID": "CustomerPayBillOnline",
+  "Amount": "1",
+  "Msisdn": "254790781834",
+  "BillRefNumber": "Test"
+}
+
+/*
+Response HTTP/1.1 200 OK
+*/
+{
+  "ConversationID": "AG_20180327_00005166fb3ee2359838",
+  "OriginatorCoversationID": "25347-1572760-1",
+  "ResponseDescription": "Accept the service request successfully."
+}
+
+// stkpush
+
+/*
+Request POST /mpesa/stkpush/v1/processrequest HTTP/1.1
+*/
+{
+      "BusinessShortCode": "174379",
+      "Password": "MTc0Mzc5YmZiMjc5ZjlhYTliZGJjZjE1OGU5N2RkNzFhNDY3Y2QyZTBjODkzMDU5YjEwZjc4ZTZiNzJhZGExZWQyYzkxOTIwMTgwMzI3MTQ1OTAw",
+      "Timestamp": "20180327145900",
+      "TransactionType": "CustomerPayBillOnline",
+      "Amount": "10",
+      "PartyA": "254790781834",
+      "PartyB": "174379",
+      "PhoneNumber": "254790781834",
+      "CallBackURL": "https://urlhitter.herokuapp.com/api/v1/callbacks",
+      "AccountReference": "Test",
+      "TransactionDesc": "Test"
+}
+
+/*
+Response HTTP/1.1 200 OK
+*/
+{
+  "MerchantRequestID": "12364-1681405-1",
+  "CheckoutRequestID": "ws_CO_27032018150828650",
+  "ResponseCode": "0",
+  "ResponseDescription": "Success. Request accepted for processing",
+  "CustomerMessage": "Success. Request accepted for processing"
+}
+
+// b2b payment request
+
+/*
+Request POST /mpesa/b2b/v1/paymentrequest HTTP/1.1
+*/
+{
+    "Initiator": "testapi482",
+    "SecurityCredential": "Safaricom482$",
+    "CommandID": "MerchantToMerchantTransfer",
+    "SenderIdentifierType": "4",
+    "RecieverIdentifierType": "4",
+    "Amount": "10",
+    "PartyA": "600482",
+    "PartyB": "600000",
+    "AccountReference": "Test",
+    "Remarks": "Test",
+    "QueueTimeOutURL": "https://urlhitter.herokuapp.com/api/v1/callbacks",
+    "ResultURL": "https://urlhitter.herokuapp.com/api/v1/callbacks"
+}
+
+/*
+Response HTTP/1.1 200 OK
+*/
+{
+  "OriginatorConversationID": "20735-1616768-1",
+  "ConversationID": "AG_20180327_0000515e643a70971308",
+  "ResponseCode": "0",
+  "ResponseDescription": "Accept the service request successfully."
+}
+// b2b payment request
+
+/*
+Request POST /mpesa/b2c/v1/paymentrequest HTTP/1.1
+*/
+{
+   "InitiatorName": "testapi482",
+   "SecurityCredential": "Safaricom482$",
+   "CommandID": "BusinessPayment",
+   "Amount": "05",
+   "PartyA": "600482",
+   "PartyB": "254790781834",
+   "Remarks": "Good",
+   "QueueTimeOutURL": "https://urlhitter.herokuapp.com/api/v1/callbacks" ,
+   "ResultURL": "https://urlhitter.herokuapp.com/api/v1/callbacks",
+   "Occassion":  "Payments"
+}
+
+/*
+Response HTTP/1.1 200 OK
+*/
+{
+  "ConversationID": "AG_20180327_000051388d89de520239",
+  "OriginatorConversationID": "12364-1693182-7",
+  "ResponseCode": "0",
+  "ResponseDescription": "Accept the service request successfully."
+}

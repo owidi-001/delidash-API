@@ -1,0 +1,181 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meal-io: {{title}}</title>
+    <link rel="stylesheet" href="{% static '/css/dashboard.css'%}">
+    <link rel="stylesheet" href="{% static '/css/styles.css'%}">
+    <link rel="stylesheet" href="{% static '/css/theme.css'%}">
+    <link rel="stylesheet" href="{% static '/css/analytics.css'%}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.2/font/bootstrap-icons.css">
+
+    <!--Chart js-->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"
+        integrity="sha256-Uv9BNBucvCPipKQ2NS9wYpJmi8DTOEfTA/nH2aoJALw=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css"
+        integrity="sha256-aa0xaJgmK/X74WM224KMQeNQC2xYKwlAt08oZqjeF0E=" crossorigin="anonymous" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+</head>
+
+<body>
+    <!-- nav -->
+    <nav>
+        <div class="nav-start">
+            <a href="{% url 'analytics'%}">
+                <img src="{% static 'images/logo.png'%}" alt="">
+            </a>
+            <a href="{% url 'analytics'%}">
+                <p>Meal-io</p>
+            </a>
+        </div>
+        <div class="nav-end">
+            <div class="report_btn" id="report_btn">
+                <!-- <i class="bi bi-cloud-download"></i> Print Report -->
+                <a href="{% url 'report_download' %}"><i class="bi bi-printer"></i> Print report</a>
+            </div>
+            <div class="date_today" id="date-today">
+            </div>
+
+            <a href="{% url 'analytics'%}">
+                <img src="{{vendor.logo.url}}" alt="{{vendor.brand}}">
+            </a>
+        </div>
+    </nav>
+
+    {% if messages %}
+    <div class="container messages-container">
+        <ul class="messages">
+            {% for message in messages %}
+            <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
+
+                <a href="#" class="del-msg"> <i class="bi bi-trash"></i></a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    {% endif %}
+
+    <!-- body -->
+    <main>
+        <aside>
+            <div class="container">
+                <div class="nav-group">
+                    <h2><a href="{% url 'analytics'%}">Home</a></h2>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="{% url 'analytics'%}">
+                                <i class="bi bi-house-fill"></i>
+                                <p>Analytics</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'shop_update'%}">
+                                <i class="bi bi-shop"></i>
+                                <p>Shop</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+                <div class="nav-group">
+                    <h2><a href="{% url 'vendor_orders' 'Pending' %}">Orders</a></h2>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="{% url 'vendor_orders' 'Pending' %}">
+                                <i class="bi bi-table"></i>
+                                <p>Pending</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'vendor_orders' 'Dispatched' %}">
+                                <i class="bi bi-truck"></i>
+                                <p>Dispatched</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'vendor_orders' 'Completed' %}">
+                                <i class="bi bi-bag-check-fill"></i>
+                                <p>Completed</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'vendor_orders' 'Cancelled' %}">
+                                <i class="bi bi-bag-x-fill"></i>
+                                <p>Cancelled</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+                <div class="nav-group">
+                    <h2><a href="{% url 'vendor_products'%}">Products</a></h2>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="{% url 'vendor_products'%}">
+                                <i class="bi bi-grid-fill"></i>
+                                <p>My Products</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{% url 'create_product'%}">
+                                <i class="bi bi-file-plus-fill"></i>
+                                <p>New product</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+
+                <div class="nav-group">
+                    <h2><a href="{% url 'contact'%}">Contact</a></h2>
+                    <ul class="nav-list">
+                        <li class="nav-item">
+                            <a href="{% url 'contact'%}">
+                                <i class="bi bi-person-fill"></i>
+                                <p>Help & Contact</p>
+                            </a>
+                        </li>
+                        <div style="height: 4em;">
+
+                        </div>
+                        <li class="nav-item">
+                            <a href="{% url 'logout'%}">
+                                <i class="bi bi-box-arrow-right"></i>
+                                <p>Logout</p>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                <hr>
+            </div>
+        </aside>
+        <div class="content">
+            {% block main %}
+            {% endblock main %}
+        </div>
+    </main>
+</body>
+<script src="{% static '/js/script.js'%}"></script>
+
+</html>
+
+<script>
+    $(document).ready(function () {
+        // messages timeout for 5 sec 
+        setTimeout(function () {
+            $('.message').fadeOut('slow');
+        }, 5000); // <-- time in milliseconds, 1000 =  1 sec
+
+        // delete message
+        $('.del-msg').live('click', function () {
+            $('.del-msg').parent().attr('style', 'display:none;');
+        })
+    });
+</script>

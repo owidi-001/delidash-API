@@ -1,0 +1,80 @@
+{% extends "dashboard/base_dashboard.html"%}
+
+{% block main %}
+<div class="dash-form">
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <legend>
+            Describe the dish
+        </legend>
+
+        <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" name="name" id="name" placeholder="eg Chicken masala">
+        </div>
+        <div class="form-group">
+            <div class="row">
+                <div class="col">
+                    <label for="unit">Unit</label>
+                    <select name="unit" id="unit">
+                        <option value="kg">
+                            KiloGrams
+                        </option>
+                        <option value="g">
+                            Grams
+                        </option>
+                        <option value="l">
+                            Litres
+                        </option>
+                        <option value="ml">
+                            Milliliter
+                        </option>
+                        <option value="in">
+                            inches
+                        </option>
+                        <option value="number" selected="selected">
+                            Count
+                        </option>
+                    </select>
+                </div>
+                <div class="col">
+                    <label for="unit_price">Price/Unit</label>
+                    <input type="number" name="unit_price" id="unit_price" placeholder="Unit Price">
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="quantity">Quantity Available</label>
+            <input type="number" name="stock" id="quantity" placeholder="# of dishes">
+        </div>
+        <div class="form-group">
+            <label for="description">Food description</label>
+            <textarea type="text" name="description" id="description"
+                placeholder="Any other details about the food eg vegetables used in pizza, health benefit etc"
+                rows="4"></textarea>
+        </div>
+        <div class="form-group">
+            <select name="category" id="category">
+                <option value="{{product.category.id}}" selected="selected">
+                    -- SELECT CATEGORY --
+                </option>
+                {% for category in categories %}
+                <option value="{{category.id}}" {% if category == current_category %} selected="selected" {% endif %}>
+                    {{category.name|capfirst}}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="product_image" class="upload-image" name="product_image">
+                Upload Image
+            </label>
+            <input type="file" name="image" id="product_image" style="display: none" accept="image/*">
+        </div>
+
+        <div class="form-group">
+            <input type="submit" name="submit" value="Save product">
+        </div>
+    </form>
+</div>
+{% endblock main %}

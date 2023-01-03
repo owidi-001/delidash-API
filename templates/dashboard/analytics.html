@@ -1,0 +1,175 @@
+{% extends "dashboard/base_dashboard.html"%}
+{% load static %}
+{% block main%}
+
+<h2>Analytics</h2>
+
+<!-- info cards -->
+<div class="info_cards">
+    <a href="{% url 'vendor_orders' 'Completed' %}">
+        <div class="info_card">
+            <div class="container">
+                <div class="title">
+                    Order Stream
+                </div>
+                <div class="body">
+                    <i class="bi bi-bag-fill" style="color: #23AA49;"></i>
+                    <p class="value">
+                        {{total_orders}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </a>
+    <a href="{% url 'vendor_orders' 'Pending' %}">
+        <div class="info_card">
+            <div class="container">
+                <div class="title">
+                    Pending orders
+                </div>
+                <div class="body">
+                    <i class="bi bi-bag-dash-fill" style="color:#FF324B"></i>
+                    <p class="value" style="color: #FF324B;">
+                        {{pending_orders}}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </a>
+
+    <div class="info_card">
+        <div class="container">
+            <div class="title">
+                Customers Stream
+            </div>
+            <div class="body">
+                <i class="bi bi-people-fill" style="color: #b2bdb4;"></i>
+                <p class="value">
+                    {{total_customers}}
+                </p>
+            </div>
+        </div>
+    </div>
+    <div class="info_card">
+        <div class="container">
+            <div class="title">
+                Revenue Stream
+            </div>
+            <div class="body">
+                <i class="bi bi-cash-coin"></i>
+                <p class="value">
+                    KES: {{sales_total}}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- graphs -->
+<div class="graphs">
+    <div class="container">
+        <div class="bar-graph">
+            <div class="title">
+                Daily Sales
+            </div>
+            <!-- <div id="line-chart"></div> -->
+            <canvas id="line-chart" width="600px" height="250px"></canvas>
+
+        </div>
+        <div class="pie-graph">
+            <div class="title">
+                Order Status
+            </div>
+            <!-- <div id="polar-chart"></div> -->
+            <canvas id="donut-chart" width="250px" height="250px"></canvas>
+        </div>
+    </div>
+</div>
+
+
+<!-- pie graph -->
+<!-- <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script> -->
+<script type="text/javascript" src="{% static 'js/Chart.min.js' %}"></script>
+<script type="text/javascript">
+
+    var donut_chart = document.getElementById('donut-chart').getContext('2d');
+    var lineChart = document.getElementById('line-chart').getContext('2d');
+
+    const order_stats = JSON.parse("{{order_stats|escapejs}}");
+    const sales_data = JSON.parse("{{daily_totals|escapejs}}");
+
+    stats_labels = []
+    stats_data = []
+
+    order_stats.forEach(stat => {
+        stats_labels.push(stat[0]);
+        stats_data.push(stat[1]);
+    });
+
+    const dataPolar = {
+
+        labels: stats_labels,
+        datasets: [{
+            label: 'Order statistics',
+            data: stats_data,
+            // data: [8, 5],
+            backgroundColor: [
+                '#23AA49',
+                '#979899',
+                '#FF324B',
+                '#f0b802',
+            ],
+        }]
+    };
+
+    var myChart = new Chart(donut_chart, {
+        type: 'doughnut',
+        data: dataPolar,
+        options: {
+            responsive: true,
+            scales: {
+                y: {
+                    beginAtZero: true
+                }
+            }
+        }
+    });
+
+
+    sales_labels = [];
+    sales_data_list = [];
+
+    sales_data.forEach(stat => {
+        sales_labels.push(stat[0]);
+        sales_data_list.push(stat[1]);
+    });
+
+    // console.log(sales_data)
+
+    const dataLines = {
+
+        labels: sales_labels,
+        datasets: [{
+            label: 'Daily Sales',
+            data: sales_data_list,
+            backgroundColor: [
+                '#23AA49',
+            ],
+        }]
+    };
+
+    var myChart = new Chart(lineChart, {
+        type: 'bar',
+        data: dataLines,
+        options: {
+            response: true,
+        }
+    });
+
+</script>
+
+
+
+
+
+{% endblock main%}

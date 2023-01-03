@@ -1,0 +1,52 @@
+{% extends "dashboard/base_dashboard.html"%}
+
+{% block main%}
+
+<h2 class="title">Available Orders</h2>
+
+<div class="orders_table">
+    {% if orders %}
+    <table class="orders-table">
+        <thead>
+            <tr>
+                <th>
+                    Item
+                </th>
+                <th>Date ordered</th>
+                <th>Time ordered</th>
+                <th>Fulfilment</th>
+                <th>Customer</th>
+                <th>Quantity</th>
+                <th>Order Total(KES)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>{{order.product.name|capfirst}}</td>
+                <td>{{order.cart.date}}</td>
+                <td>{{order.time}}</td>
+                <td>{{order.status}}</td>
+                <td>{{order.cart.user.email}}</td>
+                <td>{{order.quantity}}</td>
+                <td>{{order.get_total}}</td>
+                <td>
+                    <a href="{% url 'manage_order' order.id%}" class="btn"> <i class="bi bi-bag-fill"></i> view </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="alt-text">
+        <br>
+        <br>
+        <h4>
+            You don't have any orders here yet!
+        </h4>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock main%}
