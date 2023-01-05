@@ -24,7 +24,7 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     unit = models.CharField(max_length=2,
                             choices=(("kg", "kg"), ("g", "g"), ("l", "l"), ("ml", "ml"),
-                                     ("in", "in")), default="kg",help_text="Quantity measurement metrics")
+                                     ("in", "in"),("C","Count")), default="kg",help_text="Quantity measurement metrics")
 
     unit_price = models.DecimalField(max_digits=5, decimal_places=2, verbose_name='unit price',help_text="Price per given unit")
     image = models.ImageField(upload_to="product//%Y/%m/%d/")
