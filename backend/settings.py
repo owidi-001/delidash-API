@@ -62,8 +62,8 @@ INSTALLED_APPS = [
     'rider',
     'product',
     'order',
-    'address'
-    # 'mpesa'
+    'address',
+    'mpesa'
 ]
 
 # rest framework documentation

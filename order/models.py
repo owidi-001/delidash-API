@@ -7,9 +7,11 @@ from rider.models import Rider
 
 # Create your models here.
 class Order(models.Model):
-    date_ordered=models.DateTimeField(auto_now_add=timezone.now())
+    # date and time ordered, dispatched and delivered
+    date_ordered=models.DateTimeField(auto_now_add=timezone.now(),auto_created=True)
     date_dispatched=models.DateTimeField(blank=True,null=True)
     date_delivered=models.DateTimeField(blank=True,null=True)
+    # Product ordered
     item=models.ForeignKey(Product,on_delete=models.CASCADE)
     quantity=models.IntegerField(default=1)
     # TODO! replace status by shorter values

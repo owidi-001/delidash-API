@@ -1,4 +1,4 @@
-from django.shortcuts import get_object_or_404, redirect, render
+from django.shortcuts import get_object_or_404
 from django.contrib import messages
 # from django.utils.decorators import method_decorator
 from rest_framework import status

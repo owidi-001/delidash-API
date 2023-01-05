@@ -33,7 +33,7 @@ urlpatterns = [
     path('products/', include('product.urls')),
     path("orders/", include("order.urls")),
     path("contact/", include("contact.urls")),
-    # path('mpesa/', include('mpesa.urls')),
+    path('mpesa/', include('mpesa.urls')),
 
 
     # Documentation

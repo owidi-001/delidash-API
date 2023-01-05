@@ -26,14 +26,35 @@ class OrderView(APIView):
 
     def post(self, request):
         data = request.data
-        
-        # data={'location': {'id': -1, 'placemark': 'Njokerio Seventh Street  Njoro  Kenya', 'country': 'Njokerio Seventh Street  Njoro  Kenya', 'city': 'Njokerio Seventh Street  Njoro  Kenya', 'street': 'Njokerio Seventh Street  Njoro  Kenya', 'block': 'murira apartments ', 'floor': '3', 'room': '34c'}, 
-        # 'items': [
-        #     {'product': 3, 'quantity': 3}, 
-        #     {'product': 4, 'quantity': 1}], 
-        #     'total': 1128.0, 
-        #     'phone': '0786484661'}
+        # print(data)
 
+        print(request.user)
+
+        """
+        {
+            'location':
+            {
+                'id': -1, 
+                'placemark': 'QWHF+42C Kasarani Constituency Nairobi  Kenya', 
+                'block': 'Chicken road', 
+                'floor': '02', 
+                'room': '1'
+            }, 
+            'items': [
+                {
+                    'product': 13, 
+                    'quantity': 1
+                }, 
+                {
+                    'product': 12, 
+                    'quantity': 1
+                }
+                ], 
+            'total': 1700.0, 
+            'phone': '0792157084', 
+            'note': ''
+        }
+        """
 
         # Create location from request data
         location=data["location"]
@@ -42,23 +63,25 @@ class OrderView(APIView):
             block = location["block"],
             floor = location["floor"],
             room = location["room"]
-        )
+        )[0]
 
         # Save each item in order as order
         items=data["items"]
 
         for item in items:
-            try:
-                product=get_object_or_404(Product,id=item["product"])
-                if product:
-                    order=Order.objects.create(item=product,quantity=item["quantity"],delivery_address=delivery_address,customer=request.user,note=data["note"])
-                    order.save()
-                    product.stock -= item["quantity"]
-                    product.save()                    
-            except:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+            
+            product=get_object_or_404(Product,id=item["product"])
 
-        return Response(status=status.HTTP_201_CREATED)
+            if product:
+                order=Order.objects.create(item=product,quantity=item["quantity"],delivery_address=delivery_address,customer=request.user,note=data["note"])
+                order.save()
+                product.stock -= item["quantity"]
+                product.save() 
+                print("product updated")                   
+                
+                return Response(status=status.HTTP_201_CREATED)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         
 
 

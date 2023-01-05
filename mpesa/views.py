@@ -1,12 +1,9 @@
 import json
 import datetime
 import requests
-from coreapi.auth import TokenAuthentication
-from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from requests.auth import HTTPBasicAuth
 from rest_framework import status
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response

@@ -1,6 +1,5 @@
 from django.db import models
 
-from cart.models import Cart
 
 from user.models import User
 
