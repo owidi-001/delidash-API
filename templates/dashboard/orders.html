@@ -13,23 +13,23 @@
                     Item
                 </th>
                 <th>Date ordered</th>
-                <th>Time ordered</th>
                 <th>Fulfilment</th>
                 <th>Customer</th>
                 <th>Quantity</th>
                 <th>Order Total(KES)</th>
+                <th>Note</th>
                 <th>Actions</th>
             </tr>
         </thead>
         <tbody>
             {% for order in orders %}
             <tr>
-                <td>{{order.product.name|capfirst}}</td>
-                <td>{{order.cart.date}}</td>
-                <td>{{order.time}}</td>
+                <td>{{order.item.name|capfirst}}</td>
+                <td>{{order.date_ordered}}</td>
                 <td>{{order.status}}</td>
-                <td>{{order.cart.user.email}}</td>
+                <td>{{order.customer}}</td>
                 <td>{{order.quantity}}</td>
+                <td>{{order.note}}</td>
                 <td>{{order.get_total}}</td>
                 <td>
                     <a href="{% url 'manage_order' order.id%}" class="btn"> <i class="bi bi-bag-fill"></i> view </a>

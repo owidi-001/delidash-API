@@ -255,7 +255,7 @@ def dashboard_orders(request,status):
     orders=[]
 
     for item in items:
-        if item.product.vendor == vendor:
+        if item.item.vendor == vendor:
             # if item.order not in orders:
             orders.append(item)
 

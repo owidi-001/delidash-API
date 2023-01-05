@@ -3,7 +3,7 @@
 {% block main%}
 <div class="order-detail">
     <div class="product">
-        <img src="{{order.product.image.url}}" alt="product image" style="max-width: 45vw;">
+        <img src="{{order.item.image.url}}" alt="product image" style="max-width: 45vw;">
     </div>
     <div class="order-form">
         <form method="post" enctype="multipart/form-data">
@@ -13,7 +13,7 @@
             </legend>
 
             <div class="form-group">
-                <label>Name: <b>{{order.product.name}}</b></label>
+                <label>Name: <b>{{order.item.name}}</b></label>
             </div>
             <div class="form-group">
                 <label>Quantity: <b>{{order.quantity}}</b></label>
@@ -22,7 +22,7 @@
                 <label>Total: <b>KES {{order.get_total}}</b></label>
             </div>
             <div class="form-group">
-                <button class="pill" style="background: {{status_color}};">{{order.status}}</button>
+                <button class="pill" style="background: {{status_color}}">{{order.status}}</button>
             </div>
             {% if rider %}
             <div class="form-group">
@@ -34,16 +34,29 @@
             </div>
 
             <address>
-                <b>Placemark: </b> <span>{{order.cart.get_address_name}}</span> <br>
-                <b>Building Name: </b> <span>{{order.cart.get_address_block}}</span> <br>
-                <b>Floor Number: </b> <span>{{order.cart.get_address_floor}}</span> <br>
-                <b>Room Number: </b> <span>{{order.cart.get_address_room}}</span> <br>
+                <b>Placemark: </b> <span>{{order.delivery_address.placemark}}</span> <br>
+                <b>Building Name: </b> <span>{{order.delivery_address.block}}</span> <br>
+                <b>Floor Number: </b> <span>{{order.delivery_address.floor}}</span> <br>
+                <b>Room Number: </b> <span>{{order.delivery_address.room}}</span> <br>
             </address>
 
             <div class="form-group">
-                <label for="tagline">Date: {{order.cart.date}}</label>
+                <label for="tagline">Time Ordered: {{order.date_ordered}}</label>
             </div>
+            
+            {% if order.date_dispatched %}
+            <div class="form-group">
+                <label for="tagline">Time Dispatched: {{order.date_ordered}}</label>
+            </div>
+            {% endif %}
 
+            {% if order.date_delivered %}
+            <div class="form-group">
+                <label for="tagline">Time Delivered: {{order.date_ordered}}</label>
+            </div>
+            {% endif %}
+
+            
             {% if order.status == "Pending" %}
             <div class="form-group">
                 <label for="rider">Rider</label>
@@ -58,7 +71,8 @@
                     {% endfor %}
                 </select>
             </div>
-            <input type="text" name="order" value="{{order.id}}" style="display: none;"> <!-- this id is needed for the item data -->
+            <input type="text" name="order" value="{{order.id}}" style="display: none;">
+            <!-- this id is needed for the item data -->
             <div class="form-group">
                 <!-- spacer -->
                 <p class="auth-link"> Edited and saved by {{request.user.email}}</p>
