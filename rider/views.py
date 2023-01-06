@@ -25,7 +25,7 @@ class RiderViews(APIView):
     """
     Query all riders
     """
-    def get(self):
+    def get(self,request):
         riders = Rider.objects.all()
         serializer = RiderSerializer(riders, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
