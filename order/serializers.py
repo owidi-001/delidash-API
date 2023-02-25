@@ -9,12 +9,17 @@ from address.serializers import AddressSerializer
 
 
 
-class OrderSerializer(serializers.ModelSerializer):
-    item = ProductSerializer()
-    delivery_address = AddressSerializer(read_only=True)
-    rider=RiderSerializer()
-    customer=UserSerializer()
+# class OrderSerializer(serializers.ModelSerializer):
+#     item = ProductSerializer()
+#     delivery_address = AddressSerializer(read_only=True)
+#     rider=RiderSerializer()
+#     customer=UserSerializer()
+#
+#     class Meta:
+#         model = Order
+#         fields = ["id", "item", "delivery_address", "date_ordered","date_dispatched","date_delivered","quantity","status","customer","rider"]
 
+class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ["id", "item", "delivery_address", "date_ordered","date_dispatched","date_delivered","quantity","status","customer","rider"]
+        fields = ["__all__"]

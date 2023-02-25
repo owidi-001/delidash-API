@@ -49,76 +49,76 @@ class RiderViews(APIView):
             return Response(form.errors, status=status.HTTP_400_BAD_REQUEST) 
 
 
-"""
-The views below manages how the rider handles order requests from accepting to 
-"""
-class RiderAcceptsOrder(APIView):
-    """
-    The rider accepts the order request and transits the order
-    """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [AllowAny]
-    
-    def patch(self,request):
-        item=get_object_or_404(Order,id=request.order)
-        rider=Rider.objects.get(user=request.user)
-
-        # update order details
-        item.date_dispatched=timezone.now()
-        item.rider=rider
-        item.status="Dispatched"
-
-        item.save()
-
-        serializer=OrderSerializer()
-        
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-
-
-
-class RiderConfirmsDelivery(APIView):
-    """
-    The rider confirms the order has been delivered to the client
-    """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [AllowAny]
-
-
-    def patch(self,request):
-        item=get_object_or_404(Order,id=request.order)
-
-        # update order details
-        item.date_delivered=timezone.now()
-        item.status="Completed"
-
-        item.save()
-
-        serializer=OrderSerializer()
-        
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
-
-class RiderCancelsDelivery(APIView):
-    """
-    The rider cancelles the order due to some circumstances
-    """
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [AllowAny]
-
-
-    def patch(self,request):
-        item=get_object_or_404(Order,id=request.order)
-
-        # update order details
-        item.date_delivered=None
-        item.date_dispatched=None
-        item.status="Pending"
-
-        item.save()
-
-        serializer=OrderSerializer()
-        
-        return Response(serializer.data, status=status.HTTP_202_ACCEPTED)        
-
+# """
+# The views below manages how the rider handles order requests from accepting to
+# """
+# class RiderAcceptsOrder(APIView):
+#     """
+#     The rider accepts the order request and transits the order
+#     """
+#     authentication_classes = [TokenAuthentication]
+#     permission_classes = [AllowAny]
+#
+#     def patch(self,request):
+#         item=get_object_or_404(Order,id=request.order)
+#         rider=Rider.objects.get(user=request.user)
+#
+#         # update order details
+#         item.date_dispatched=timezone.now()
+#         item.rider=rider
+#         item.status="Dispatched"
+#
+#         item.save()
+#
+#         serializer=OrderSerializer()
+#
+#         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+#
+#
+#
+# class RiderConfirmsDelivery(APIView):
+#     """
+#     The rider confirms the order has been delivered to the client
+#     """
+#     authentication_classes = [TokenAuthentication]
+#     permission_classes = [AllowAny]
+#
+#
+#     def patch(self,request):
+#         item=get_object_or_404(Order,id=request.order)
+#
+#         # update order details
+#         item.date_delivered=timezone.now()
+#         item.status="Completed"
+#
+#         item.save()
+#
+#         serializer=OrderSerializer()
+#
+#         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+#
+# class RiderCancelsDelivery(APIView):
+#     """
+#     The rider cancelles the order due to some circumstances
+#     """
+#     authentication_classes = [TokenAuthentication]
+#     permission_classes = [AllowAny]
+#
+#
+#     def patch(self,request):
+#         item=get_object_or_404(Order,id=request.order)
+#
+#         # update order details
+#         item.date_delivered=None
+#         item.date_dispatched=None
+#         item.status="Pending"
+#
+#         item.save()
+#
+#         serializer=OrderSerializer()
+#
+#         return Response(serializer.data, status=status.HTTP_202_ACCEPTED)
+#
 
 
 """

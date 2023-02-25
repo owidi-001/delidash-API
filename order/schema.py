@@ -9,7 +9,7 @@ class OrderSchema(AutoSchema):
         if method.upper() == "POST":
             extra_fields = [
                 coreapi.Field("delivery_address", required=True, location="form",
-                              schema=coreschema.Object(required=True, description="Order location to be saved")),
+                              schema=coreschema.Object(required=True, description="Order address to be saved")),
             ]
 
         if method.upper() == "Patch":

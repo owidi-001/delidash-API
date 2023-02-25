@@ -1,9 +1,11 @@
-from django.utils import timezone
 from django.db import models
+from django.utils import timezone
+
+from address.models import UserAddress
 from product.models import Product
-from address.models import Address
-from user.models import User
 from rider.models import Rider
+from user.models import User
+
 
 # Create your models here.
 class Order(models.Model):
@@ -18,9 +20,10 @@ class Order(models.Model):
     STATUS = (
         ("Pending", "Pending"), ("Dispatched", "Dispatched"), ("Completed", "Completed"), ("Cancelled", "Cancelled"))
     status = models.CharField(max_length=20, choices=STATUS, default="Pending")
-    delivery_address=models.ForeignKey(Address,on_delete=models.CASCADE)
+    pickup_address = models.ForeignKey(UserAddress, on_delete=models.CASCADE,related_name="source")
+    delivery_address=models.ForeignKey(UserAddress,on_delete=models.CASCADE,related_name="destination")
     customer=models.ForeignKey(User,on_delete=models.CASCADE)
-    # payment_phone=models.CharField(max_length=10,null=True,blank=True)
+    payment_phone=models.CharField(max_length=10,null=True,blank=True)
     rider=models.ForeignKey(Rider,on_delete=models.CASCADE,blank=True,null=True)
     note=models.TextField(blank=True,null=True)
 

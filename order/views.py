@@ -11,7 +11,8 @@ from order.schema import OrderSchema
 from product.models import Product
 from .models import Order
 from .serializers import OrderSerializer
-from address.models import Address
+from address.models import Address, UserAddress
+
 
 class OrderView(APIView):
     authentication_classes = [TokenAuthentication]
@@ -25,65 +26,57 @@ class OrderView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
+        global user_address
+        global payment_phone
         data = request.data
         # print(data)
 
-        print(request.user)
+        # Create address from request data
+        try:
+            if 'address' in data:
+                # Create address
+                location = data["address"]
+                lat= location["lat"]
+                long=location["long"]
+                building=location["building"]
+                floor=location["floor"]
+                room=location["room"]
 
-        """
-        {
-            'location':
-            {
-                'id': -1, 
-                'placemark': 'QWHF+42C Kasarani Constituency Nairobi  Kenya', 
-                'block': 'Chicken road', 
-                'floor': '02', 
-                'room': '1'
-            }, 
-            'items': [
-                {
-                    'product': 13, 
-                    'quantity': 1
-                }, 
-                {
-                    'product': 12, 
-                    'quantity': 1
-                }
-                ], 
-            'total': 1700.0, 
-            'phone': '0792157084', 
-            'note': ''
-        }
-        """
+                address = Address.objects.create(lat=lat, long=long, building=building, floor=floor, room=room)
+                if address:
+                    user_address = UserAddress.objects.create(address=address, user=request.user)
+        except:
+            user_address=Address.objects.filter(user=request.user,isDefault=True).first()
 
-        # Create location from request data
-        location=data["location"]
-        delivery_address=Address.objects.get_or_create(
-            placemark=location["placemark"],
-            block = location["block"],
-            floor = location["floor"],
-            room = location["room"]
-        )[0]
 
-        # Save each item in order as order
-        items=data["items"]
-
-        for item in items:
-            
-            product=get_object_or_404(Product,id=item["product"])
-
-            if product:
-                order=Order.objects.create(item=product,quantity=item["quantity"],delivery_address=delivery_address,customer=request.user,note=data["note"])
-                order.save()
-                product.stock -= item["quantity"]
-                product.save() 
-                print("product updated")                   
-                
-                return Response(status=status.HTTP_201_CREATED)
+        # Payment details
+        try:
+            if data.get('phone'):
+                payment_phone=data["phone"]
             else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        
+                payment_phone = request.user.phone
 
+            # Initiate payment
+            # TODO! do payment
+
+            # Save each item in order as order
+            items = data["items"]
+
+            for item in items:
+                product = get_object_or_404(Product, id=item["product"])
+
+                if product and product.quantity >= item.quantity:
+                    order = Order.objects.create(item=product, quantity=item["quantity"],
+                                                 delivery_address=user_address, customer=request.user,
+                                                 note=data["note"])
+                    order.save()
+                    product.stock -= item["quantity"]
+                    product.save()
+
+                    return Response(status=status.HTTP_201_CREATED)
+
+        except:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self,request):
         data=request.data
@@ -91,19 +84,26 @@ class OrderView(APIView):
 
         if item:
             # Check if location changed
-            if data["location"]:
-                location = data["location"]
-                delivery_address=Address.objects.get_or_create(
-                room = location["room"],
-                floor = location["floor"],
-                block = location["block"],
-                
-                placemark=location["placemark"])
+            try:
+                if 'address' in data:
+                    # Create address
+                    location = data["address"]
+                    lat = location["lat"]
+                    long = location["long"]
+                    building = location["building"]
+                    floor = location["floor"]
+                    room = location["room"]
+                    address = Address.objects.get_or_create(lat=lat, long=long, building=building, floor=floor, room=room)[0]
 
-                item.delivery_address=delivery_address
+                    if address:
+                        user_address = UserAddress.objects.get_or_create(address=address,user=request.user)[0]
+                        item.delivery_address=user_address
+            except:
+                pass
+
             if data["status"]:
                 item.status=data["status"]
-            
+
             if data["note"]:
                 item.note=data["note"]
 

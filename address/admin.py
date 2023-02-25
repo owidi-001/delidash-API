@@ -4,6 +4,6 @@ from .models import Address
 # Register your models here.
 
 class AddressAdmin(admin.ModelAdmin):
-    list_display=["placemark","room","floor","block"]
+    list_display=["lat","long","placemark","building","room","floor"]
 
 admin.site.register(Address,AddressAdmin)
