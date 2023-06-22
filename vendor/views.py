@@ -8,6 +8,8 @@ from xhtml2pdf import pisa
 from django.template.loader import get_template
 from io import BytesIO
 from django.http import HttpResponse
+
+from address.forms import AddressForm
 from product.forms import ProductForm
 from product.models import Category
 from product.models import Product
@@ -70,6 +72,7 @@ def dashboard_register(request):
         else:
             # print(form.errors)
             messages.info(request, form.errors)
+            return redirect("register")
     else:
         return render(request, "auth/register.html",
                   {"title": "Account creation"})
@@ -84,25 +87,29 @@ def dashboard_login(request):
         if form.is_valid():
             username = form.cleaned_data.get('email')
             password = form.cleaned_data.get('password')
+
             user = authenticate(username=username, password=password)
             if user:
                 login(request, user)
                 try:
-                    # print("Searching vendor")
+                    print("Searching vendor")
                     vendor = get_object_or_404(Vendor, user=user)
-                    # print("vendor found")
+                    print("vendor found")
                     if vendor.brand is not None:
                         print("Vendor redirect to analytics")
                         return redirect('analytics')
                 except:
-                    # print("Vendor nor found")
+                    print("Vendor not found")
+                    messages.error(request, "No shop found!")
                     return redirect('create_shop')
             else:
                 messages.error(request, "Incorrect email or password")
+                return redirect('login')
         else:
             messages.error(request, form.errors)
+            return redirect('login')
     else:
-        return render(request, "auth/login.html", {"title": "Account lo"})
+        return render(request, "auth/login.html", {"title": "Account login"})
 
 
 def create_shop(request):
@@ -128,6 +135,28 @@ def create_shop(request):
             messages.error(request, form.errors)
 
     return render(request, "auth/shop.html",{"title": "Create your shop"})
+
+
+def add_address(request):
+    if request.POST:
+        user = request.user
+
+        form = AddressForm(request.POST)
+
+        if form.is_valid():
+            print("Form is valid check")
+            address = form.save(commit=False)
+            vendor=Vendor.objects.get(user=user)
+            vendor.address = address
+            vendor.save()
+            print("Vendor address saved")
+            messages.info(request, "Your address has been saved successfully")
+            return redirect("analytics")
+        else:
+            # print(form.errors)
+            messages.error(request, form.errors)
+
+    return render(request, "auth/address_form.html", {"title": "Add your address"})
 
 
 def dashboard_analytics(request):

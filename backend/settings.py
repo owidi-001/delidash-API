@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'drf_yasg',
+    'geoposition',
 
     # Local
     'user',
@@ -216,3 +217,16 @@ EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 CONTENT_TYPE=os.getenv('CONTENT_TYPE')
 DEFAULT_FROM_EMAIL=EMAIL_HOST_USER
 EMAIL_USE_TLS=True
+
+# maps key
+GEOPOSITION_GOOGLE_MAPS_API_KEY = os.getenv('MAPS_API_KEY')
+
+# maps configuration
+GEOPOSITION_MAP_OPTIONS = {
+    'minZoom': 3,
+    'maxZoom': 15,
+}
+
+GEOPOSITION_MARKER_OPTIONS = {
+    'cursor': 'move'
+}

@@ -1,6 +1,7 @@
 import random
 from threading import Thread
 
+from django.contrib import messages
 from django.contrib.auth import authenticate
 from django.contrib.sites.shortcuts import get_current_site
 from django.shortcuts import get_object_or_404, render
@@ -12,17 +13,16 @@ from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.authtoken.models import Token
-from rest_framework.permissions import IsAuthenticated,AllowAny
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.contrib import messages
 
 from .forms import ChangePasswordForm, RegisterForm, LoginForm, ResetPasswordForm, UserUpdateForm
+# Documentation schema
+from .schema import *
 from .send_email import send_mail
 from .serializers import *
 from .token_generator import password_reset_token
-# Documentation schema
-from .schema import *
 
 
 class EmailThead(Thread):

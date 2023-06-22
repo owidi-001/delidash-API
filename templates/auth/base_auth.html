@@ -6,8 +6,13 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Meal-io:{{title}}</title>
+    <title>Meal-io: {{ title }}</title>
     <link rel="stylesheet" href="{% static '/css/theme.css'%}">
+    <style>
+        .hidden {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -16,13 +21,29 @@
         <ul class="messages">
             {% for message in messages %}
             <li {% if message.tags %} class="{{ message.tags }}" {% endif %}>{{ message }}
-
                 <a href="#" class="del-msg">&times;</a>
             </li>
             {% endfor %}
         </ul>
     </div>
 
+    <script>
+        setTimeout(function () {
+            var messages = document.querySelectorAll('.messages li');
+            messages.forEach(function (message) {
+                message.classList.add('hidden');
+            });
+        }, 3000);
+
+        var deleteLinks = document.querySelectorAll('.del-msg');
+        deleteLinks.forEach(function (link) {
+            link.addEventListener('click', function (event) {
+                event.preventDefault();
+                var message = this.parentElement;
+                message.classList.add('hidden');
+            });
+        });
+    </script>
     {% endif %}
 
     <div class="form-container">
@@ -32,17 +53,3 @@
 </body>
 
 </html>
-
-<script>
-    $(document).ready(function () {
-    // messages timeout for 5 sec 
-    setTimeout(function () {
-        $('.message').fadeOut('slow');
-    }, 5000); // <-- time in milliseconds, 1000 =  1 sec
-
-    // delete message
-    $('.del-msg').live('click', function () {
-        $('.del-msg').parent().attr('style', 'display:none;');
-    })
-});
-</script>

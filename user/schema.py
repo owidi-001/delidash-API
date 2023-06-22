@@ -42,23 +42,23 @@ class UserLoginSchema(AutoSchema):
 class ProfileSchema(AutoSchema):
     def get_manual_fields(self, path, method):
         extra_fields = []
-        if method.upper() in ["PATCH","POST","PUT"]:
+        if method.upper() in ["PATCH"]:
             extra_fields = [
                 coreapi.Field(
                     "name", required=False, location="form", schema=coreschema.String()
                 ),
-                coreapi.Field(
-                    "email", required=False, location="form", schema=coreschema.String()
-                ),
-                coreapi.Field(
-                    "phone_number",
-                    required=False,
-                    location="form",
-                    schema=coreschema.String(
-                        pattern=r"\+254\w{9}",
-                        description="must start with 07... eg 07 xxxx xxxx",
-                    ),
-                )
+                # coreapi.Field(
+                #     "email", required=False, location="form", schema=coreschema.String()
+                # ),
+                # coreapi.Field(
+                #     "phone_number",
+                #     required=False,
+                #     location="form",
+                #     schema=coreschema.String(
+                #         pattern=r"\+254\w{9}",
+                #         description="must start with 07... eg 07 xxxx xxxx",
+                #     ),
+                # )
             ]
         manual_fields = super().get_manual_fields(path, method)
         return manual_fields + extra_fields

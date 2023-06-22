@@ -274,9 +274,6 @@ form title {
 
 /* global messages */
 .messages-container {
-    background: var(--gradient);
-    color: var(--secondary);
-    padding: .8em;
     position: absolute;
     top: 2em;
     min-width: 300px;
@@ -295,4 +292,11 @@ form title {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    background: var(--gradient);
+    color: var(--secondary);
+    padding: .8em;
+}
+
+.messages-container .messages li.hidden{
+    display: none;
 }

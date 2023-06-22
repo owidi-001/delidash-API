@@ -29,11 +29,11 @@ This form defines the fields that can be updated by the user
 """
 class UserUpdateForm(forms.Form):
     name = forms.CharField(
-        max_length=100, help_text="Update your name")
-    email = forms.CharField(
-        max_length=50, help_text="Update default email")
-    phone_number = forms.CharField(
-        max_length=13, help_text="Update default phone number")
+        max_length=100, help_text="Update your name",empty_value="")
+    # email = forms.CharField(
+    #     max_length=50, help_text="Update default email")
+    # phone_number = forms.CharField(
+    #     max_length=13, help_text="Update default phone number")
 
 
 # Change password

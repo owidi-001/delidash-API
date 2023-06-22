@@ -3,6 +3,7 @@ from user.models import User
 
 # Create your models here.
 class Address(models.Model):
+    user=models.ForeignKey(User,on_delete=models.CASCADE)
     lat= models.FloatField(default=0)
     long= models.FloatField(default=0)
     placemark= models.CharField(max_length=100)
@@ -16,9 +17,6 @@ class Address(models.Model):
     def __str__(self):
         return self.placemark
 
-
-# Links the user to an address
 class UserAddress(models.Model):
-    user=models.ForeignKey(User,on_delete=models.CASCADE)     
-    address=models.ForeignKey(Address,on_delete=models.CASCADE)
-    isDefault=models.BooleanField(default=False)
+    address=models.ForeignKey(Address, on_delete=models.CASCADE)
+    user=models.ForeignKey(User,on_delete=models.CASCADE)

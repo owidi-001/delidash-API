@@ -17,10 +17,12 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     phone_number = models.CharField(
         max_length=10, null=False, blank=False, unique=True)
+
     username = None
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["phone_number"]
     objects = UserManager()
+
 
     def __str__(self) -> str:
         return f"{self.email}"

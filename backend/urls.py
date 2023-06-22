@@ -28,12 +28,12 @@ urlpatterns = [
     # local apps
     path('auth/', include('user.urls')),
     path('', include('vendor.urls')),
-    path('', include('rider.urls')),
+    # path('', include('rider.urls')),
 
     path('products/', include('product.urls')),
     path("orders/", include("order.urls")),
     path("contact/", include("contact.urls")),
-    # path('mpesa/', include('mpesa.urls')),
+    path('mpesa/', include('mpesa.urls')),
 
 
     # Documentation
